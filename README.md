@@ -24,7 +24,7 @@ A event management REST API built with FastAPI, SQLAlchemy, and PostgreSQL. This
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/your-org/event-management.git
+git clone https://github.com/ayushbenny/event_management_system
 cd event-management
 ```
 
