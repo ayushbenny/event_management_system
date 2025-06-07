@@ -29,7 +29,7 @@ async def health_check():
 
 
 @event_management_router.post(
-    "/events", response_model=EventResponse, status_code=status.HTTP_201_CREATED
+    "/create_events", response_model=EventResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_event(event_data: EventCreate, db: AsyncSession = Depends(get_db)):
     """
@@ -73,7 +73,7 @@ async def fetch_upcoming_events(
 
 
 @event_management_router.post(
-    "/{event_id}/register",
+    "/{event_id}/register_attendee",
     response_model=AttendeeResponse,
     status_code=status.HTTP_201_CREATED,
 )
