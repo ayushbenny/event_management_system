@@ -19,6 +19,12 @@ event_management_router = APIRouter()
 
 @event_management_router.get("/health_check")
 async def health_check():
+    """
+    Health check endpoint to verify if the Event Management Service is running.
+
+    Returns:
+        dict: A status message indicating the service is active.
+    """
     return {"status": "active", "message": "Event Management Service is up and running"}
 
 
@@ -26,6 +32,19 @@ async def health_check():
     "/events", response_model=EventResponse, status_code=status.HTTP_201_CREATED
 )
 async def create_event(event_data: EventCreate, db: AsyncSession = Depends(get_db)):
+    """
+    Create a new event.
+
+    Args:
+        event_data (EventCreate): The data required to create a new event.
+        db (AsyncSession, optional): Async database session dependency.
+
+    Returns:
+        EventResponse: Details of the newly created event.
+
+    Raises:
+        HTTPException: If event creation fails due to validation or database errors.
+    """
     return await views.EventService.create_event(db, event_data)
 
 
@@ -38,6 +57,18 @@ async def fetch_upcoming_events(
     per_page: int = Query(10, ge=1, le=100, description="Items per page"),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Fetch a paginated list of upcoming events filtered by timezone.
+
+    Args:
+        timezone (str, optional): Timezone to filter events. Defaults to "Asia/Kolkata".
+        page (int, optional): Page number for pagination. Defaults to 1.
+        per_page (int, optional): Number of events per page (max 100). Defaults to 10.
+        db (AsyncSession, optional): Async database session dependency.
+
+    Returns:
+        PaginatedEventsResponse: Paginated list of upcoming events.
+    """
     return await views.EventService.fetch_upcoming_events(db, timezone, page, per_page)
 
 
@@ -49,6 +80,20 @@ async def fetch_upcoming_events(
 async def register_attendee(
     event_id: int, attendee_data: AttendeeCreate, db: AsyncSession = Depends(get_db)
 ):
+    """
+    Register a new attendee for a specific event.
+
+    Args:
+        event_id (int): The ID of the event to register for.
+        attendee_data (AttendeeCreate): The data of the attendee to register.
+        db (AsyncSession, optional): Async database session dependency.
+
+    Returns:
+        AttendeeResponse: Details of the registered attendee.
+
+    Raises:
+        HTTPException: If the event does not exist or registration fails.
+    """
     return await views.EventService.register_attendee(db, event_id, attendee_data)
 
 
@@ -61,4 +106,19 @@ async def fetch_event_attendees(
     per_page: int = Query(10, ge=1, le=100, description="Items per page"),
     db: AsyncSession = Depends(get_db),
 ):
+    """
+    Fetch a paginated list of attendees for a specific event.
+
+    Args:
+        event_id (int): The ID of the event whose attendees are to be fetched.
+        page (int, optional): Page number for pagination. Defaults to 1.
+        per_page (int, optional): Number of attendees per page (max 100). Defaults to 10.
+        db (AsyncSession, optional): Async database session dependency.
+
+    Returns:
+        PaginatedAttendeesResponse: Paginated list of attendees for the event.
+
+    Raises:
+        HTTPException: If the event does not exist.
+    """
     return await views.EventService.fetch_event_attendees(db, event_id, page, per_page)
