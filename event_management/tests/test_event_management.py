@@ -38,7 +38,7 @@ async def test_fetch_upcoming_events(async_session):
 async def test_register_attendee(async_session):
     event_data = EventCreate(
         name="Register Test Event",
-        location="Mumbai",
+        location="Karnataka",
         start_time=datetime.now() + timedelta(hours=2),
         end_time=datetime.now() + timedelta(hours=3),
         max_capacity=1,
@@ -79,7 +79,7 @@ async def test_register_attendee_duplicate_email(async_session):
 async def test_register_attendee_capacity_reached(async_session):
     event_data = EventCreate(
         name="Full Capacity Event",
-        location="Chennai",
+        location="Kerala",
         start_time=datetime.now() + timedelta(hours=3),
         end_time=datetime.now() + timedelta(hours=4),
         max_capacity=1,

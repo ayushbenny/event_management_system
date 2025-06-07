@@ -22,6 +22,16 @@ from event_management.api.v1.models.events import Attendee, Event
 class EventService:
     @staticmethod
     async def create_event(db, event_data):
+        """
+        Create a new event in the database.
+
+        Args:
+            db (AsyncSession): Async SQLAlchemy session instance.
+            event_data (EventCreate): Pydantic schema containing event creation data.
+
+        Returns:
+            Event: The created Event ORM instance.
+        """
         event_dict = event_data.model_dump()
         tz = pytz.timezone("Asia/Kolkata")
         event_obj = Event(**event_dict)
@@ -37,6 +47,18 @@ class EventService:
         page: int = 1,
         per_page: int = 10,
     ) -> PaginatedEventsResponse:
+        """
+        Fetch upcoming events filtered by timezone with pagination.
+
+        Args:
+            db (AsyncSession): Async SQLAlchemy session instance.
+            timezone (str, optional): Timezone string to filter upcoming events. Defaults to "Asia/Kolkata".
+            page (int, optional): Page number for pagination. Defaults to 1.
+            per_page (int, optional): Number of items per page. Defaults to 10.
+
+        Returns:
+            PaginatedEventsResponse: Paginated response containing list of upcoming events and metadata.
+        """
         tz = pytz.timezone(timezone)
         current_time = datetime.now(tz)
         offset = (page - 1) * per_page
@@ -87,7 +109,21 @@ class EventService:
     async def register_attendee(
         db: AsyncSession, event_id: int, attendee_data: AttendeeCreate
     ) -> AttendeeResponse:
-        """Register an attendee for an event"""
+        """
+        Register a new attendee for an event.
+
+        Args:
+            db (AsyncSession): Async SQLAlchemy session instance.
+            event_id (int): ID of the event to register the attendee for.
+            attendee_data (AttendeeCreate): Pydantic schema containing attendee information.
+
+        Raises:
+            HTTPException: If the event is not found, registration is attempted for a past event,
+                           attendee email is already registered for the event, or event capacity is full.
+
+        Returns:
+            AttendeeResponse: Response schema with the registered attendee's details.
+        """
         result = await db.execute(select(Event).where(Event.id == event_id))
         event = result.scalars().first()
         if not event:
@@ -141,6 +177,21 @@ class EventService:
     async def fetch_event_attendees(
         db: AsyncSession, event_id: int, page: int = 1, per_page: int = 10
     ) -> PaginatedAttendeesResponse:
+        """
+        Fetch paginated list of attendees for a specific event.
+
+        Args:
+            db (AsyncSession): Async SQLAlchemy session instance.
+            event_id (int): ID of the event to fetch attendees for.
+            page (int, optional): Page number for pagination. Defaults to 1.
+            per_page (int, optional): Number of attendees per page. Defaults to 10.
+
+        Raises:
+            HTTPException: If the event is not found.
+
+        Returns:
+            PaginatedAttendeesResponse: Paginated response containing list of attendees and metadata.
+        """
         event_obj = await db.execute(select(Event).where(Event.id == event_id))
         event = event_obj.scalars().first()
         if not event:
